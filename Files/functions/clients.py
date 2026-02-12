@@ -2,20 +2,21 @@ import sqlite3; import os;
 def clear(): os.system("cls");
 
 def view():
-    pasta="./bin"; os.makedirs(pasta, exist_ok=True); db_path=os.path.join(pasta, "database.db"); conn=sqlite3.connect(db_path); c=conn.cursor();
+    pasta="./bin"; os.makedirs(pasta, exist_ok=True);
+    db_path=os.path.join(pasta, "database.db");
+    conn=sqlite3.connect(db_path); c=conn.cursor();
     c.execute("""SELECT c.id, c.name, c.local, c.phone, c.email, COALESCE(SUM(CASE WHEN e.pay = '✓' THEN e.valor ELSE 0 END), 0) AS total_pago, COUNT(e.id) AS total_eventos FROM clients c LEFT JOIN events e ON e.client = c.name GROUP BY c.id ORDER BY c.id DESC"""); results=c.fetchall();
     PAGE_SIZE=15; page=0; total=len(results);
 
     while True:
-        clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mCLIENTES\033[0m"); print(f"\n   {'NOME':<22}"f"{'LOCAL':<25}"f"{'TELEMÓVEL':<17}"f"{'EMAIL':<25}"f"{'T. PAGO':<14}"f"{'T. EVENTOS':<3}");
+        clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mCLIENTES\033[0m"f"\n\n   {'NOME':<22}"f"{'LOCAL':<25}"f"{'TELEMÓVEL':<17}"f"{'EMAIL':<25}"f"{'T. PAGO':<14}"f"{'T. EVENTOS':<3}"); 
         start=page*PAGE_SIZE; end=start+PAGE_SIZE; page_items=results[start:end];
         if not results: print("\n", " "*48, "Nenhum cliente encontrado.");
         for id_, name, local, phone, email, pay, events_total in page_items:
             print(f"   {name:<22}"f"{local:<25}"f"{phone:<17}"f"{email:<25}"f"{pay:>10.2f}€"f"{events_total:^17}");
         total_valor=sum(row[5] for row in results); total_events=sum(row[6] for row in results);
-        print(f"\n   \033[35mPágina {page+1} / {((total-1) // PAGE_SIZE)+1}\033[0m"f"{'\033[35mTotal Ganho:\033[0m ':>65}{total_valor}€\033[0m\t\033[35mTotal de Eventos:\033[0m {total_events}\033[0m");
-        print("\n   \033[35m1.\033[0m Criar Cliente   \033[35m2.\033[0m Editar Cliente    \033[35m3.\033[0m Página Anterior   \033[35m4.\033[0m Página Seguinte   \033[35m5.\033[0m Menu Principal");
-        choice=input("\n   > "); conn.commit();
+        choice=input(f"\n   \033[35mPágina {page+1} / {((total-1) // PAGE_SIZE)+1}\033[0m"f"{'\033[35mTotal Ganho:\033[0m ':>65}{total_valor}€\033[0m\t\033[35mTotal de Eventos:\033[0m {total_events}\033[0m\n\n   \033[35m1.\033[0m Criar Cliente   \033[35m2.\033[0m Editar Cliente    \033[35m3.\033[0m Página Anterior   \033[35m4.\033[0m Página Seguinte   \033[35m5.\033[0m Menu Principal\n\n   > ");
+        conn.commit();
 
         if choice=="1": add();
         elif choice=="2": print();
@@ -28,21 +29,22 @@ def view():
         else: continue;
 
 def add():
-    pasta="./bin"; os.makedirs(pasta, exist_ok=True); db_path=os.path.join(pasta, "database.db"); conn=sqlite3.connect(db_path); c=conn.cursor(); clear();
+    pasta="./bin"; os.makedirs(pasta, exist_ok=True);
+    db_path=os.path.join(pasta, "database.db");
+    conn=sqlite3.connect(db_path); c=conn.cursor();
     clear(); print("─"*58, "•", "─"*58, "\n", " "*54, "\033[35mEVENTOS\033[0m"); print("  \33[35m0.\33[0m Voltar\t");
-    name=input("\n   Qual o nome do cliente?\n  >"); tamanho=25;
-    if name=="0": return;
-    elif not name or len(name)>tamanho: input("   Campo não preenchido corretamente. A voltar ao Menu de Eventos."); return;
-    else:
-        local=input("\n   Localidade?\n  >"); tamanho=25;
-        if local=="0": return;
-        elif len(local)>tamanho: input("   Campo não preenchido corretamente. A voltar ao Menu de Eventos."); return;
-        else:
-            phone=input("\n   Contacto?\n  >"); tamanho=15;
-        if phone=="0": return;
-        elif len(phone)>tamanho: input("   Campo não preenchido corretamente. A voltar ao Menu de Eventos."); return;
-        else:
-            email=input("\n   Email?\n  >"); tamanho=30;
-            if email=="59": return;
-            elif len(email)>tamanho: input("   Campo não preenchido corretamente. A voltar ao Menu de Eventos."); return;
-            else: c.execute("INSERT INTO clients (name, local, phone, email) VALUES (?, ?, ?, ?)", (name, local, phone, email)); conn.commit(); return;        
+
+    name=input("\n   Qual o nome do cliente?\n  >");
+    if not name or len(name)>25: return;
+
+    local=input("\n   Localidade?\n  >");
+    if not local or len(local)>25: return;
+
+    phone=input("\n   Contacto?\n  >");
+    if not phone or len(phone)>15: return;
+
+    email=input("\n   Email?\n  >"); tamanho=30;
+    if not email or len(email)>30: return;
+
+    c.execute("INSERT INTO clients (name, local, phone, email) VALUES (?, ?, ?, ?)", (name, local, phone, email));
+    conn.commit(); return;

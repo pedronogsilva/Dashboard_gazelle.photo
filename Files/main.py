@@ -2,7 +2,11 @@ import sqlite3; import os;
 from functions import events, clients;
 
 def initialize_db():
-    pasta="./bin"; os.makedirs(pasta, exist_ok=True); db_path=os.path.join(pasta, "database.db"); conn=sqlite3.connect(db_path); c=conn.cursor();
+    pasta="./bin";
+    os.makedirs(pasta, exist_ok=True);
+    db_path=os.path.join(pasta, "database.db");
+    conn=sqlite3.connect(db_path);
+    c=conn.cursor();
     c.execute('''CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, date DATE NOT NULL, event VARCHAR(50) NOT NULL, client VARCHAR(25) NOT NULL, valor DECIMAL(10,2) NOT NULL, pay VARCHAR(1) NOT NULL, estado VARCHAR(1) NOT NULL)''');
     c.execute('''CREATE TABLE IF NOT EXISTS clients (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(25) NOT NULL, local VARCHAR(25), phone VARCHAR(15), email VARCHAR(30))''');
     conn.commit();
@@ -23,7 +27,9 @@ def exit(): os.sys.exit();
 def clear(): os.system("cls");
 
 while True:
-    initialize_db(); dashboard(); option=input("\n > ");
+    initialize_db();
+    dashboard();
+    option=input("\n > ");
 
     if option=="1": events.view()
     elif option=="2": clients.view();
