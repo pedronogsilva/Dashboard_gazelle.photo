@@ -5,7 +5,7 @@ def view():
     pasta="./bin"; os.makedirs(pasta, exist_ok=True);
     db_path=os.path.join(pasta, "database.db");
     conn=sqlite3.connect(db_path); c=conn.cursor();
-    c.execute("""SELECT c.id, c.name, c.local, c.phone, c.email, COALESCE(SUM(CASE WHEN e.pay = '✓' THEN e.valor ELSE 0 END), 0) AS total_pago, COUNT(e.id) AS total_eventos FROM clients c LEFT JOIN events e ON e.client = c.name GROUP BY c.id ORDER BY c.id DESC"""); results=c.fetchall();
+    c.execute("""SELECT c.id, c.name, c.local, c.phone, c.email, COALESCE(SUM(CASE WHEN e.pay = 'S' THEN e.valor ELSE 0 END), 0) AS total_pago, COUNT(e.id) AS total_eventos FROM clients c LEFT JOIN events e ON e.client = c.name GROUP BY c.id ORDER BY c.id DESC"""); results=c.fetchall();
     PAGE_SIZE=15; page=0; total=len(results);
 
     while True:
@@ -38,13 +38,13 @@ def add():
     if not name or len(name)>25: return;
 
     local=input("\n   Localidade?\n  >");
-    if not local or len(local)>25: return;
+    if len(local)>25: return;
 
     phone=input("\n   Contacto?\n  >");
-    if not phone or len(phone)>15: return;
+    if len(phone)>15: return;
 
     email=input("\n   Email?\n  >"); tamanho=30;
-    if not email or len(email)>30: return;
+    if len(email)>30: return;
 
     c.execute("INSERT INTO clients (name, local, phone, email) VALUES (?, ?, ?, ?)", (name, local, phone, email));
     conn.commit(); return;

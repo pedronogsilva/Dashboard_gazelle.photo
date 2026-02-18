@@ -21,7 +21,7 @@ def dashboard():
     ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝╚══════╝
                 D A S H B O A R D - P H O T O\033[0m
 ────────────────────────────────────────────────────────────
-"""); print(" \033[35m1.\033[0m Eventos\t \033[35m2.\033[0m Clientes\t \033[35m3.\033[0m Equipamentos \033[35m4.\033[0m Exemplo\n \033[35m5.\033[0m Exemplo\t \033[35m6.\033[0m Exemplo\t \033[35m7.\033[0m Exemplo\t \033[35m8.\033[0m Fechar"); 
+\n \033[35m1.\033[0m Eventos\t \033[35m2.\033[0m Clientes\t \033[35m3.\033[0m Equipamentos \033[35m4.\033[0m Exemplo\n \033[35m5.\033[0m Exemplo\t \033[35m6.\033[0m Exemplo\t \033[35m7.\033[0m Exemplo\t \033[35m8.\033[0m Fechar""");
 
 def exit(): os.sys.exit();
 def clear(): os.system("cls");
@@ -39,4 +39,4 @@ while True:
     elif option=="6": clear();
     elif option=="7": clear();
     elif option=="8": exit();
-    else: clear(); 
+    else: continue;
