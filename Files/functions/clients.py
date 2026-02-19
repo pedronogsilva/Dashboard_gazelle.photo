@@ -5,10 +5,11 @@ def view():
     pasta="./bin"; os.makedirs(pasta, exist_ok=True);
     db_path=os.path.join(pasta, "database.db");
     conn=sqlite3.connect(db_path); c=conn.cursor();
-    c.execute("""SELECT c.id, c.name, c.local, c.phone, c.email, COALESCE(SUM(CASE WHEN e.pay = 'S' THEN e.valor ELSE 0 END), 0) AS total_pago, COUNT(e.id) AS total_eventos FROM clients c LEFT JOIN events e ON e.client = c.name GROUP BY c.id ORDER BY c.id DESC"""); results=c.fetchall();
-    PAGE_SIZE=15; page=0; total=len(results);
 
     while True:
+        c.execute("""SELECT c.id, c.name, c.local, c.phone, c.email, COALESCE(SUM(CASE WHEN e.pay = 'S' THEN e.valor ELSE 0 END), 0) AS total_pago, COUNT(e.id) AS total_eventos FROM clients c LEFT JOIN events e ON e.client = c.name GROUP BY c.id ORDER BY c.name ASC"""); results=c.fetchall();
+        PAGE_SIZE=15; page=0; total=len(results);
+
         clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mCLIENTES\033[0m"f"\n\n   {'NOME':<22}"f"{'LOCAL':<25}"f"{'TELEMÓVEL':<17}"f"{'EMAIL':<25}"f"{'T. PAGO':<14}"f"{'T. EVENTOS':<3}"); 
         start=page*PAGE_SIZE; end=start+PAGE_SIZE; page_items=results[start:end];
         if not results: print("\n", " "*48, "Nenhum cliente encontrado.");
@@ -19,7 +20,7 @@ def view():
         conn.commit();
 
         if choice=="1": add();
-        elif choice=="2": print();
+        elif choice=="2": edit();
         elif choice=="3": 
             if page>0: page-=1;
         elif choice=="4":
@@ -32,7 +33,42 @@ def add():
     pasta="./bin"; os.makedirs(pasta, exist_ok=True);
     db_path=os.path.join(pasta, "database.db");
     conn=sqlite3.connect(db_path); c=conn.cursor();
-    clear(); print("─"*58, "•", "─"*58, "\n", " "*54, "\033[35mEVENTOS\033[0m"); print("  \33[35m0.\33[0m Voltar\t");
+    
+    dados=question();
+    if not dados: return;
+    name, local, phone, email=dados;
+
+    c.execute("INSERT INTO clients (name, local, phone, email) VALUES (?, ?, ?, ?)", 
+              (name, local, phone, email));
+    conn.commit(); return;
+
+def edit():
+    pasta="./bin"; os.makedirs(pasta, exist_ok=True);
+    db_path=os.path.join(pasta, "database.db");
+    conn=sqlite3.connect(db_path); c=conn.cursor();
+
+    clear(); print("─"*58,"•","─"*58,"\n"," "*53,"\033[35mCLIENTES\033[0m");
+    choice_client=input("\n   Qual o nome do cliente que quer editar?\n\n  > ");
+    if not choice_client or len(choice_client)>25: return;
+
+    c.execute("SELECT * FROM clients WHERE name = ?", (choice_client,)); results = c.fetchone();
+    if not results: return;
+    id_, name, local, phone, email=results;
+
+    clear(); print("─"*58,"•","─"*58,"\n"," "*53,"\033[35mCLIENTES\033[0m");
+    choice_user=input(f"   {'NOME':<22}"f"{'LOCAL':<25}"f"{'TELEMÓVEL':<17}"f"{'EMAIL':<25}\n"f"   {name:<22}"f"{local:<25}"f"{phone:<17}"f"{email:<25}\n\n   Confirmar cliente para editar? (S/N)\n  > ").upper();
+    if choice_user not in ("S", "N") or len(choice_user)!=1: return;
+    elif choice_user=="N": return;
+    else:
+        dados=question();
+        if not dados: return;
+        name, local, phone, email=dados;
+        c.execute("UPDATE clients SET name=?, local=?, phone=?, email=? WHERE id=?",
+                (name, local, phone, email, id_))
+        conn.commit(); return;
+
+def question():
+    clear(); print("─"*58,"•","─"*58,"\n"," "*53,"\033[35mCLIENTES\033[0m");
 
     name=input("\n   Qual o nome do cliente?\n  >");
     if not name or len(name)>25: return;
@@ -43,8 +79,7 @@ def add():
     phone=input("\n   Contacto?\n  >");
     if len(phone)>15: return;
 
-    email=input("\n   Email?\n  >"); tamanho=30;
+    email=input("\n   Email?\n  >");
     if len(email)>30: return;
 
-    c.execute("INSERT INTO clients (name, local, phone, email) VALUES (?, ?, ?, ?)", (name, local, phone, email));
-    conn.commit(); return;
+    return name, local, phone, email;

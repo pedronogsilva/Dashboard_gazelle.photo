@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 ; Non-commercial use only
 
-#define MyAppName "Dashboard Photo"
-#define MyAppVersion "1.1.0"
+#define MyAppName "Dashboard"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "pedronogsilva"
 #define MyAppURL "https://github.com/pedronogsilva/Dashboard_gazelle.photo"
 #define MyAppExeName "main.exe"
@@ -11,7 +11,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{43CCE0DD-8729-4AF2-B98E-704835A10087}
+AppId={{FCAF9000-7F19-4D5D-A581-6F7D66138102}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -34,8 +34,7 @@ LicenseFile=E:\Dashboard_gazelle.photo\LICENSE
 InfoBeforeFile=E:\Dashboard_gazelle.photo\README.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
-OutputDir=E:\Dashboard_gazelle.photo
-OutputBaseFilename=mysetup
+OutputBaseFilename=dashboard_setup
 SolidCompression=yes
 WizardStyle=modern dynamic
 

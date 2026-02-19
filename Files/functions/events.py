@@ -1,15 +1,15 @@
 import sqlite3; import os;
-from functions import clients;
 def clear(): os.system("cls");
 
 def view():
     pasta="./bin"; os.makedirs(pasta, exist_ok=True);
     db_path=os.path.join(pasta, "database.db");
     conn=sqlite3.connect(db_path); c=conn.cursor();
-    c.execute("SELECT id, date, event, client, valor, pay, estado FROM events ORDER BY date DESC "); results=c.fetchall();
-    PAGE_SIZE=15; page=0; total=len(results);
 
     while True:
+        c.execute("SELECT id, date, event, client, valor, pay, estado FROM events ORDER BY date DESC "); results=c.fetchall();
+        PAGE_SIZE=15; page=0; total=len(results);
+
         clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mEVENTOS\033[0m"
                        f"\n\n   {'DATA':<12}"f"{'EVENTO':<50}"f"{'CLIENTE':<25}"f"{'VALOR':<14}"f"{'PAGO':<7}"f"{'ESTADO':<3}");
         start=page*PAGE_SIZE; end=start+PAGE_SIZE; page_items=results[start:end];
@@ -17,7 +17,7 @@ def view():
             print("\n", " "*48, "Nenhum evento encontrado.");
         for id_, date, events, client, valor, pay, estado in page_items:
             print(f"   {date:<12}"f"{events:<50}"f"{client:<25}"f"{valor:>10.2f}€"f"{pay:^10}"f"{estado:^5}");
-        print("\n   \33[35mLegenda:\033[0m M-Marcado | C-Capturado | E-A Editar | D-Editado | S-Enviado");
+        print("\n   \33[35mLegenda:\033[0m M-Marcado | C-Capturado | E-A Editar | D-Editado | S-Enviado | R-Cancelado");
 
         total_valor=sum(row[4] for row in results); pagina_valor=sum(row[4] for row in page_items);
         choice_view=input(f"\n   \033[35mPágina {page+1} / {((total-1) // PAGE_SIZE)+1}\033[0m"
@@ -46,9 +46,6 @@ def add():
     conn.commit(); return;
 
 def edit():
-    pasta="./bin"; os.makedirs(pasta, exist_ok=True);
-    db_path=os.path.join(pasta, "database.db");
-    conn=sqlite3.connect(db_path); c=conn.cursor();
     while True:
         clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mEVENTOS\033[0m");
         choice_edit=input("\n   Pesquisar por?\n\n   \033[35m1.\033[0m Data\n   \033[35m2.\033[0m Evento\n   \033[35m3.\033[0m Cliente\n   \033[35m4.\033[0m Menu Principal\n\n  >")
@@ -65,12 +62,13 @@ def edit_by_date():
     
     dados=choice_event_by_date();
     if not dados: return;
-    c.execute("SELECT * FROM events WHERE id = ?", (dados,)); result = c.fetchone();
+    c.execute("SELECT * FROM events WHERE id = ?", (dados,)); result=c.fetchone();
     id_, date, events, client, valor, pay, estado=result;
 
     clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mEVENTOS\033[0m\n")
     choice_user=input(f"   {'DATA':<12}"f"{'EVENTO':<50}"f"{'CLIENTE':<25}"f"{'VALOR':<14}"f"{'PAGO':<7}"f"{'ESTADO':<3}\n"f"   {date:<12}"f"{events:<50}"f"{client:<25}"f"{valor:>10.2f}€"f"{pay:^10}"f"{estado:^5}\n\n   Confirmar evento para editar? (S/N)\n  > ").upper();
     if choice_user not in ("S", "N") or len(choice_user)!=1: return;
+    elif choice_user=="N": return;
     else: 
         dados=question();
         if not dados: return;
@@ -88,7 +86,7 @@ def choice_event_by_date():
     choice_event_by_date=input("\n   Qual data quer pesquisar? (YYYY-MM-DD)\n\n  > ");
     if len(choice_event_by_date)!=10: return;
 
-    c.execute("SELECT * FROM events WHERE date = ?", (choice_event_by_date,)); results = c.fetchall();
+    c.execute("SELECT * FROM events WHERE date = ?", (choice_event_by_date,)); results=c.fetchall();
 
     PAGE_SIZE=15; page=0; total=len(results);
     
@@ -122,7 +120,7 @@ def edit_by_event():
     
     dados=choice_event_by_event();
     if not dados: return;
-    c.execute("SELECT * FROM events WHERE id = ?", (dados,)); result = c.fetchone();
+    c.execute("SELECT * FROM events WHERE id = ?", (dados,)); result=c.fetchone();
     id_, date, events, client, valor, pay, estado=result;
 
     clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mEVENTOS\033[0m\n")
@@ -145,7 +143,7 @@ def choice_event_by_event():
     choice_event_by_event=input("\n   Qual evento quer pesquisar?\n\n  > ");
     if not choice_event_by_event or len(choice_event_by_event)>50: return;
 
-    c.execute("SELECT * FROM events WHERE event = ?", (choice_event_by_event,)); results = c.fetchall();
+    c.execute("SELECT * FROM events WHERE event = ?", (choice_event_by_event,)); results=c.fetchall();
 
     PAGE_SIZE=15; page=0; total=len(results);
     
@@ -179,7 +177,7 @@ def edit_by_client():
 
     dados=choice_event_by_client();
     if not dados: return;
-    c.execute("SELECT * FROM events WHERE id = ?", (dados,)); result = c.fetchone();
+    c.execute("SELECT * FROM events WHERE id = ?", (dados,)); result=c.fetchone();
     id_, date, events, client, valor, pay, estado=result;
 
     clear(); print("─"*58,"•","─"*58,"\n"," "*54,"\033[35mEVENTOS\033[0m\n")
@@ -201,7 +199,7 @@ def choice_event_by_client():
     choice_event_by_client=select_client();
     if not choice_event_by_client: return;
 
-    c.execute("SELECT * FROM events WHERE client = ?", (choice_event_by_client,)); results = c.fetchall();
+    c.execute("SELECT * FROM events WHERE client = ?", (choice_event_by_client,)); results=c.fetchall();
 
     PAGE_SIZE=15; page=0; total=len(results);
     
