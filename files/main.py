@@ -7,7 +7,7 @@ from events import main_events;
 # ==============================
 
 def initialize_db():
-    pasta="./bin";
+    pasta="./bin";  
     os.makedirs(pasta, exist_ok=True);
     db_path=os.path.join(pasta, "database.db");
     conn=sqlite3.connect(db_path);
